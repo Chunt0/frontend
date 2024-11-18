@@ -1,0 +1,126 @@
+import React, { useState, useRef, useEffect } from 'react';
+
+interface Layer {
+  file: File;
+  x: number;
+  y: number;
+  zIndex: number;
+}
+
+const ImageEditor: React.FC = () => {
+  const [images, setImages] = useState<File[]>([]);
+  const [layers, setLayers] = useState<Layer[]>([]);
+  const [activeLayerIndex, setActiveLayerIndex] = useState<number | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  const handleFiles = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files) {
+      const fileArray = Array.from(event.target.files);
+      setImages(fileArray);
+      setLayers(fileArray.map((file, index) => ({ file, x: 0, y: 0, zIndex: index })));
+    }
+  };
+
+  const drawLayers = () => {
+    const canvas = canvasRef.current;
+    const context = canvas?.getContext('2d');
+    if (canvas && context) {
+      context.clearRect(0, 0, canvas.width, canvas.height);
+      const sortedLayers = [...layers].sort((a, b) => a.zIndex - b.zIndex);
+      sortedLayers.forEach((layer) => {
+        const img = new Image();
+        const fileReader = new FileReader();
+        fileReader.onload = (e) => {
+          img.src = e.target?.result as string;
+          img.onload = () => {
+            context.drawImage(img, layer.x, layer.y);
+          };
+        };
+        fileReader.readAsDataURL(layer.file);
+      });
+    }
+  };
+
+  useEffect(() => {
+    drawLayers();
+  }, [layers]);
+
+  const getMousePos = (canvas: HTMLCanvasElement, evt: MouseEvent) => {
+    const rect = canvas.getBoundingClientRect();
+    return {
+      x: evt.clientX - rect.left,
+      y: evt.clientY - rect.top,
+    };
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const mousePos = getMousePos(canvas, e.nativeEvent);
+
+    for (let i = layers.length - 1; i >= 0; i--) {
+      const layer = layers[i];
+      const img = new Image();
+      img.src = URL.createObjectURL(layer.file);
+      const { x, y } = layer;
+      if (
+        mousePos.x >= x &&
+        mousePos.x <= x + img.width &&
+        mousePos.y >= y &&
+        mousePos.y <= y + img.height
+      ) {
+        setActiveLayerIndex(i);
+        break;
+      }
+    }
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (activeLayerIndex === null) return;
+
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const mousePos = getMousePos(canvas, e.nativeEvent);
+    setLayers((prevLayers) => {
+      const newLayers = [...prevLayers];
+      const activeLayer = newLayers[activeLayerIndex];
+      activeLayer.x = mousePos.x;
+      activeLayer.y = mousePos.y;
+      return newLayers;
+    });
+  };
+
+  const handleMouseUp = () => {
+    setActiveLayerIndex(null);
+  };
+
+  return (
+    <div style={{ display: 'flex', padding: '20px', gap: '20px', backgroundColor: '#1e1e1e', color: '#f5f5f5', minHeight: '100vh' }}>
+      <div style={{ width: '200px', overflowY: 'auto', backgroundColor: '#333', color: '#f5f5f5', border: '1px solid #555', padding: '10px' }}>
+        <input type="file" multiple onChange={handleFiles} style={{ width: '100%', backgroundColor: '#444', color: '#f5f5f5', border: '1px solid #555', padding: '8px', marginBottom: '10px' }} />
+        <ul>
+          {images.map((image, index) => (
+            <li key={index} style={{ padding: '5px', cursor: 'pointer' }}>
+              {"candy"}
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div style={{ flex: 1, position: 'relative', border: '1px solid #555', minHeight: '512px' }}>
+        <canvas
+          ref={canvasRef}
+          width={1000}
+          height={1248}
+          style={{ display: 'block', backgroundColor: '#1e1e1e', border: '1px solid #555' }}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+        />
+      </div>
+    </div>
+  );
+};
+
+export default ImageEditor;
