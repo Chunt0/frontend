@@ -3254,5 +3254,388 @@ export default App;
 This setup provides a basic implementation of a split-view interface with a file explorer and image canvas. Let me know if you have any questions or need further enhancements!
 
 ---------------------------User---------------------------
+fix this so that i can update the add_tokens number 
+  return (
+    <div style={{ display: 'flex', padding: '20px', gap: '20px', backgroundColor: '#1e1e1e', color: '#f5f5f5', minHeight: '100vh' }}>
+      <form onSubmit={handleSubmit} style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '10px', maxWidth: '300px' }}>
+        <h3 style={{ color: '#f5f5f5' }}>Settings</h3>
+        <input
+          type="number"
+          name="add_tokens"
+          placeholder="Add Tokens"
+          value={formData.token_addition}
+          min="0"
+          onChange={handleInputChange}
+          required
+          style={{ backgroundColor: '#333', color: '#f5f5f5', border: '1px solid #555', padding: '8px' }}
+        />
+        <button type="submit" style={{ backgroundColor: '#6200ee', color: '#f5f5f5', border: 'none', padding: '10px', cursor: 'pointer' }}>
+          Add Tokens
+        </button>
+      </form>
+    </div>
+  );
+};
 
-no i want to upload a folder, and then be able to select the files in the explorer
+export default Settings;
+
+
+---------------------------Agent---------------------------
+
+To ensure that you can update the `add_tokens` number, ensure your component is set up to handle form state correctly. Here's how you can adjust your component:
+
+1. Initialize the state for `formData` using the `useState` hook.
+2. Implement the `handleInputChange` function to update the state.
+3. Update the `handleSubmit` function to handle form submission.
+
+Here's a revised version:
+
+```jsx
+import React, { useState } from 'react';
+
+const Settings = () => {
+  const [formData, setFormData] = useState({ token_addition: '' });
+
+  const handleInputChange = (event) => {
+    const { name, value } = event.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    // Add logic to handle the submission, such as updating the token count
+    console.log(`Tokens to add: ${formData.token_addition}`);
+  };
+
+  return (
+    <div style={{ display: 'flex', padding: '20px', gap: '20px', backgroundColor: '#1e1e1e', color: '#f5f5f5', minHeight: '100vh' }}>
+      <form onSubmit={handleSubmit} style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '10px', maxWidth: '300px' }}>
+        <h3 style={{ color: '#f5f5f5' }}>Settings</h3>
+        <input
+          type="number"
+          name="token_addition"
+          placeholder="Add Tokens"
+          value={formData.token_addition}
+          min="0"
+          onChange={handleInputChange}
+          required
+          style={{ backgroundColor: '#333', color: '#f5f5f5', border: '1px solid #555', padding: '8px' }}
+        />
+        <button type="submit" style={{ backgroundColor: '#6200ee', color: '#f5f5f5', border: 'none', padding: '10px', cursor: 'pointer' }}>
+          Add Tokens
+        </button>
+      </form>
+    </div>
+  );
+};
+
+export default Settings;
+```
+
+Make sure your component is part of a React environment where state management and event handling are correctly set up.
+
+---------------------------User---------------------------
+
+i can't change the number in the form in the browser
+
+---------------------------Agent---------------------------
+
+If you can't change the number in the form, it's usually due to the `value` of the input being tightly controlled without proper updating. Let's ensure that the `handleInputChange` function is set up correctly and that `setFormData` is properly updating the state.
+
+Here's a checklist to ensure everything is correct:
+
+1. **State Initialization**: Make sure that the state is initialized correctly.
+2. **Input Handling**: Ensure `handleInputChange` correctly updates the state.
+3. **Form Value**: Make sure the input value is set from the state.
+
+Here's a complete example to follow:
+
+```jsx
+import React, { useState } from 'react';
+
+const Settings = () => {
+  const [formData, setFormData] = useState({ token_addition: '' });
+
+  const handleInputChange = (event) => {
+    const { name, value } = event.target;
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    // Add logic to handle form submission, such as updating the token count
+    console.log(`Tokens to add: ${formData.token_addition}`);
+  };
+
+  return (
+    <div style={{ display: 'flex', padding: '20px', gap: '20px', backgroundColor: '#1e1e1e', color: '#f5f5f5', minHeight: '100vh' }}>
+      <form onSubmit={handleSubmit} style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '10px', maxWidth: '300px' }}>
+        <h3 style={{ color: '#f5f5f5' }}>Settings</h3>
+        <input
+          type="number"
+          name="token_addition"
+          placeholder="Add Tokens"
+          value={formData.token_addition}
+          min="0"
+          onChange={handleInputChange}
+          required
+          style={{ backgroundColor: '#333', color: '#f5f5f5', border: '1px solid #555', padding: '8px' }}
+        />
+        <button type="submit" style={{ backgroundColor: '#6200ee', color: '#f5f5f5', border: 'none', padding: '10px', cursor: 'pointer' }}>
+          Add Tokens
+        </button>
+      </form>
+    </div>
+  );
+};
+
+export default Settings;
+```
+
+Double-check that the state is correctly updating as you type. If the issue persists, make sure there are no console errors or other parts of the code affecting the state update.
+
+---------------------------User---------------------------
+
+
+import React, { useState } from 'react';
+import { useWallet } from '@solana/wallet-adapter-react';
+
+interface SettingsRequest {
+  is_connected: boolean;
+  public_key: string | null;
+  token_addition: number;
+}
+
+const Settings: React.FC = () => {
+  const { connected, publicKey } = useWallet();
+  const [formData, setFormData] = useState({ token_addition: 0 });
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => (){ ...formData, [name]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const requestData: SettingsRequest = {
+      is_connected: connected,
+      public_key: publicKey?.toBase58() || null,
+      token_addition: formData.token_addition,
+    };
+
+    try {
+      //const response = await fetch('https://backend-bs98b.ondigitalocean.app/add_tokens', {
+      const response = await fetch('http://localhost:8000/add_tokens', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestData),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const token_amount = data.token_amount;
+        console.log(`Current token amount: ${token_amount}`);
+      } else {
+        console.error('Failed to add tokens');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
+  return (
+    <div style={{ display: 'flex', padding: '20px', gap: '20px', backgroundColor: '#1e1e1e', color: '#f5f5f5', minHeight: '100vh' }}>
+      <form onSubmit={handleSubmit} style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '10px', maxWidth: '300px' }}>
+        <h3 style={{ color: '#f5f5f5' }}>Settings</h3>
+        <input
+          type="number"
+          name="add_tokens"
+          placeholder="Add Tokens"
+          value={formData.token_addition}
+          min="0"
+          onChange={handleInputChange}
+          required
+          style={{ backgroundColor: '#333', color: '#f5f5f5', border: '1px solid #555', padding: '8px' }}
+        />
+        <button type="submit" style={{ backgroundColor: '#6200ee', color: '#f5f5f5', border: 'none', padding: '10px', cursor: 'pointer' }}>
+          Add Tokens
+        </button>
+      </form>
+    </div>
+  );
+};
+
+export default Settings;
+
+
+---------------------------Agent---------------------------
+
+There are a few issues that need fixing in your code:
+
+1. **Syntax Error in `handleInputChange`**: There's a syntax error in the lambda function used in `setFormData`. It should be corrected by replacing `(){ ...formData, [name]: value }` with `({ ...prevData, [name]: Number(value) })`.
+
+2. **Mismatched Input Name**: The `name` attribute in your input field is `add_tokens`, but your state object expects `token_addition`. You need to ensure these match to properly update the state.
+
+Here's the corrected code:
+
+```jsx
+import React, { useState } from 'react';
+import { useWallet } from '@solana/wallet-adapter-react';
+
+interface SettingsRequest {
+  is_connected: boolean;
+  public_key: string | null;
+  token_addition: number;
+}
+
+const Settings: React.FC = () => {
+  const { connected, publicKey } = useWallet();
+  const [formData, setFormData] = useState({ token_addition: 0 });
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({ ...prevData, [name]: Number(value) }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const requestData: SettingsRequest = {
+      is_connected: connected,
+      public_key: publicKey?.toBase58() || null,
+      token_addition: formData.token_addition,
+    };
+
+    try {
+      //const response = await fetch('https://backend-bs98b.ondigitalocean.app/add_tokens', {
+      const response = await fetch('http://localhost:8000/add_tokens', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestData),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const token_amount = data.token_amount;
+        console.log(`Current token amount: ${token_amount}`);
+      } else {
+        console.error('Failed to add tokens');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
+  return (
+    <div style={{ display: 'flex', padding: '20px', gap: '20px', backgroundColor: '#1e1e1e', color: '#f5f5f5', minHeight: '100vh' }}>
+      <form onSubmit={handleSubmit} style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '10px', maxWidth: '300px' }}>
+        <h3 style={{ color: '#f5f5f5' }}>Settings</h3>
+        <input
+          type="number"
+          name
+
+---------------------------User---------------------------
+
+this is suppose to be tsx
+
+---------------------------Agent---------------------------
+
+To ensure your code works correctly in TypeScript (TSX), let's address a few issues:
+
+1. **Correct Syntax**: The `setFormData` function has a syntax error in the callback function.
+2. **Type Safety**: Ensure the input value is correctly converted to a number since `token_addition` should be a number.
+
+Here's your code with the required corrections:
+
+```tsx
+import React, { useState } from 'react';
+import { useWallet } from '@solana/wallet-adapter-react';
+
+interface SettingsRequest {
+  is_connected: boolean;
+  public_key: string | null;
+  token_addition: number;
+}
+
+const Settings: React.FC = () => {
+  const { connected, publicKey } = useWallet();
+  const [formData, setFormData] = useState<{ token_addition: number }>({ token_addition: 0 });
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: parseFloat(value), // Convert the input value to a number
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const requestData: SettingsRequest = {
+      is_connected: connected,
+      public_key: publicKey?.toBase58() || null,
+      token_addition: formData.token_addition,
+    };
+
+    try {
+      const response = await fetch('http://localhost:8000/add_tokens', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestData),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const token_amount = data.token_amount;
+        console.log(`Current token amount: ${token_amount}`);
+      } else {
+        console.error('Failed to add tokens');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
+  return (
+    <div style={{ display: 'flex', padding: '20px', gap: '20px', backgroundColor: '#1e1e1e', color: '#f5f5f5', minHeight: '100vh' }}>
+      <form onSubmit={handleSubmit} style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '10px', maxWidth: '300px' }}>
+        <h3 style={{ color: '#f5f5f5' }}>Settings</h3>
+        <input
+          type="number"
+          name="token_addition"
+          placeholder="Add Tokens"
+          value={formData.token_addition}
+          min="0"
+          onChange={handleInputChange}
+          required
+          style={{ backgroundColor: '#333', color: '#f5f5f5', border: '1px solid #555', padding: '8px' }}
+        />
+        <button type="submit" style={{ backgroundColor: '#6200ee', color: '#f5f5f5', border: 'none', padding: '10px', cursor: 'pointer' }}>
+          Add Tokens
+        </button>
+      </form>
+    </div>
+  );
+};
+
+export default Settings;
+```
+
+### Key Changes:
+- Fixed the syntax in `setFormData` by using `({ ...prevData, [name]: parseFloat(value) })`.
+- Changed the input `name` from `add_tokens` to `token_addition` to match the state field.
+- Ensured `parseFloat(value)` is used to convert the input value to a number.
+
+With these adjustments, your code should handle changes to the number input correctly in a TypeScript environment.
+
+---------------------------User---------------------------
+
+

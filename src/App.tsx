@@ -7,6 +7,7 @@ import {
 import MainLayout from './layouts/MainLayout';
 import HomePage from './pages/HomePage'
 import GeneratorPage from './pages/GeneratorPage'
+import SettingsPage from './pages/SettingsPage'
 import ManageAssetPage from './pages/ManageAssetPage'
 import MemeBoardPage from './pages/MemeBoardPage'
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
@@ -28,6 +29,7 @@ const App = () => {
         <Route path='/generator' element={<GeneratorPage />} />
         <Route path='/manage-asset' element={<ManageAssetPage />} />
         <Route path='/meme-board' element={<MemeBoardPage />} />
+        <Route path='/settings' element={<SettingsPage />} />
       </Route>
     )
   );

@@ -20,6 +20,7 @@ const NavBar = () => {
                 <NavLink to='/generator' className={linkClass}>Generator</NavLink>
                 <NavLink to='/meme-board' className={linkClass}>Memeboard</NavLink>
                 <NavLink to='/shuffler' className={linkClass}>Shuffler</NavLink>
+                <NavLink to='/settings' className={linkClass}>Settings</NavLink>
                 <ConnectButton />
               </div>
             </div>

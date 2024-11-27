@@ -53,6 +53,7 @@ const Generator: React.FC = () => {
     };
 
     try {
+      //const response = await fetch('https://backend-bs98b.ondigitalocean.app/generate', {
       const response = await fetch('http://localhost:8000/generate', {
         method: 'POST',
         headers: {
